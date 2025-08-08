@@ -48,7 +48,7 @@ console.log(chalk.blue.bold(`
 `))
 
 program
-  .name('pixell')
+  .name('pxui')
   .description('CLI tools for Pixell Agent Framework development')
   .version('0.5.0')
 
@@ -74,7 +74,7 @@ program
   .option('--no-install', 'Skip npm install')
   .option('--no-git', 'Skip git initialization')
   .action((name, options) => {
-    console.log(chalk.cyan('💡 Tip: You can also use "pixell create" for this command'))
+    console.log(chalk.cyan('💡 Tip: You can also use "pxui create" for this command'))
     createApp(name, options)
   })
 
@@ -94,7 +94,7 @@ program
   .option('-t, --tools <tools>', 'Comma-separated list of tools', 'api')
   .option('-p, --protocol <protocol>', 'Communication protocol', 'a2a')
   .action((name, options) => {
-    console.log(chalk.cyan('💡 Tip: You can also use "pixell generate-worker" for this command'))
+    console.log(chalk.cyan('💡 Tip: You can also use "pxui generate-worker" for this command'))
     generateWorker(name, options)
   })
 
@@ -123,7 +123,7 @@ program
   .description('Start the Pixell Agent Framework (alias for start)')
   .option('--env <environment>', 'Environment to use (defaults to local)', 'local')
   .action((options) => {
-    console.log(chalk.cyan('💡 Tip: You can also use "pixell start" for this command'))
+    console.log(chalk.cyan('💡 Tip: You can also use "pxui start" for this command'))
     startProject({ env: options.env })
   })
 
@@ -669,7 +669,7 @@ program
   .command('ll [path]')
   .description('List directory contents in long format (shortcut for fs ls -l)')
   .action((path) => {
-    console.log(chalk.cyan('💡 Shortcut for: pixell fs ls -l'))
+    console.log(chalk.cyan('💡 Shortcut for: pxui fs ls -l'))
     listFiles(path, {
       all: false,
       long: true,
@@ -684,7 +684,7 @@ program
   .command('la [path]')
   .description('List all files including hidden (shortcut for fs ls -a)')
   .action((path) => {
-    console.log(chalk.cyan('💡 Shortcut for: pixell fs ls -a'))
+    console.log(chalk.cyan('💡 Shortcut for: pxui fs ls -a'))
     listFiles(path, {
       all: true,
       long: false,
@@ -701,7 +701,7 @@ program
   .option('-L, --level <depth>', 'Maximum display depth')
   .option('-a, --all', 'Show all files including hidden')
   .action((path, options) => {
-    console.log(chalk.cyan('💡 Shortcut for: pixell fs tree'))
+    console.log(chalk.cyan('💡 Shortcut for: pxui fs tree'))
     showTree(path, {
       maxDepth: options.level ? parseInt(options.level) : undefined,
       showFiles: options.all
@@ -713,7 +713,7 @@ program
   .command('init')
   .description('Initialize CLI configuration (shortcut for config init)')
   .action(() => {
-    console.log(chalk.cyan('💡 Shortcut for: pixell config init'))
+    console.log(chalk.cyan('💡 Shortcut for: pxui config init'))
     initConfig()
   })
 
@@ -748,7 +748,7 @@ program
   .option('-t', 'Sort by modification time')
   .option('-S', 'Sort by file size')
   .action((path, options) => {
-    console.log(chalk.yellow('Note: Consider using "pixell fs ls" or "pixell f l" for the organized command structure'))
+    console.log(chalk.yellow('Note: Consider using "pxui fs ls" or "pxui f l" for the organized command structure'))
     const sortOption = options.t ? 'date' : options.S ? 'size' : 'name'
     listFiles(path, {
       all: options.all,
@@ -766,38 +766,38 @@ if (!process.argv.slice(2).length) {
   console.log(chalk.magenta('✨ Phase 2: Now with aliases and shortcuts!'))
   console.log(chalk.cyan('\n📋 Organized command structure:'))
   console.log(chalk.white('   Core Commands:'))
-  console.log(chalk.cyan('   pixell create    - Create new agent applications'))
-  console.log(chalk.cyan('   pixell start     - Start the framework'))
-  console.log(chalk.cyan('   pixell deploy    - Deploy applications'))
-  console.log(chalk.cyan('   pixell env       - Manage environments'))
+  console.log(chalk.cyan('   pxui create    - Create new agent applications'))
+  console.log(chalk.cyan('   pxui start     - Start the framework'))
+  console.log(chalk.cyan('   pxui deploy    - Deploy applications'))
+  console.log(chalk.cyan('   pxui env       - Manage environments'))
   console.log(chalk.white('\n   Service Groups (with aliases):'))
-  console.log(chalk.cyan('   pixell config (c)    - Framework configuration'))
-  console.log(chalk.cyan('   pixell fs (f)        - Filesystem operations'))
-  console.log(chalk.cyan('   pixell supabase (sb) - Database management'))
-  console.log(chalk.cyan('   pixell storage (st)  - Storage management'))
-  console.log(chalk.cyan('   pixell extensions (ext) - Extension management'))
-  console.log(chalk.cyan('   pixell docker (d)    - Docker management'))
-  console.log(chalk.cyan('   pixell runtime (rt)  - Runtime management'))
-  console.log(chalk.cyan('   pixell paf-core-agent (paf) - PAF Core Agent management'))
-  console.log(chalk.cyan('   pixell services (svc) - Service orchestration'))
+  console.log(chalk.cyan('   pxui config (c)    - Framework configuration'))
+  console.log(chalk.cyan('   pxui fs (f)        - Filesystem operations'))
+  console.log(chalk.cyan('   pxui supabase (sb) - Database management'))
+  console.log(chalk.cyan('   pxui storage (st)  - Storage management'))
+  console.log(chalk.cyan('   pxui extensions (ext) - Extension management'))
+  console.log(chalk.cyan('   pxui docker (d)    - Docker management'))
+  console.log(chalk.cyan('   pxui runtime (rt)  - Runtime management'))
+  console.log(chalk.cyan('   pxui paf-core-agent (paf) - PAF Core Agent management'))
+  console.log(chalk.cyan('   pxui services (svc) - Service orchestration'))
   console.log(chalk.white('\n   🚀 Popular Shortcuts:'))
-  console.log(chalk.green('   pixell new       - Create app (alias for create)'))
-  console.log(chalk.green('   pixell gen       - Generate worker (alias for generate-worker)'))
-  console.log(chalk.green('   pixell run       - Start framework (alias for start)'))
-  console.log(chalk.green('   pixell ll        - Long list (fs ls -l)'))
-  console.log(chalk.green('   pixell la        - List all (fs ls -a)'))
-  console.log(chalk.green('   pixell tree      - Directory tree (fs tree)'))
-  console.log(chalk.green('   pixell init      - Initialize config (config init)'))
-  console.log(chalk.green('   pixell status    - Combined system status'))
-  console.log(chalk.green('   pixell setup:complete - Complete automated setup'))
+  console.log(chalk.green('   pxui new       - Create app (alias for create)'))
+  console.log(chalk.green('   pxui gen       - Generate worker (alias for generate-worker)'))
+  console.log(chalk.green('   pxui run       - Start framework (alias for start)'))
+  console.log(chalk.green('   pxui ll        - Long list (fs ls -l)'))
+  console.log(chalk.green('   pxui la        - List all (fs ls -a)'))
+  console.log(chalk.green('   pxui tree      - Directory tree (fs tree)'))
+  console.log(chalk.green('   pxui init      - Initialize config (config init)'))
+  console.log(chalk.green('   pxui status    - Combined system status'))
+  console.log(chalk.green('   pxui setup:complete - Complete automated setup'))
   console.log(chalk.yellow('\n   💡 Examples:'))
-  console.log(chalk.gray('   pixell c s       - Show config (config show)'))
-  console.log(chalk.gray('   pixell f l       - List files (fs ls)'))
-  console.log(chalk.gray('   pixell sb st     - Supabase status'))
-  console.log(chalk.gray('   pixell ext ls    - List extensions'))
-  console.log(chalk.gray('   pixell paf c     - Clone PAF Core Agent'))
-  console.log(chalk.gray('   pixell svc up    - Start all services'))
-  console.log(chalk.yellow('\n   Use "pixell <command> --help" for detailed options'))
+  console.log(chalk.gray('   pxui c s       - Show config (config show)'))
+  console.log(chalk.gray('   pxui f l       - List files (fs ls)'))
+  console.log(chalk.gray('   pxui sb st     - Supabase status'))
+  console.log(chalk.gray('   pxui ext ls    - List extensions'))
+  console.log(chalk.gray('   pxui paf c     - Clone PAF Core Agent'))
+  console.log(chalk.gray('   pxui svc up    - Start all services'))
+  console.log(chalk.yellow('\n   Use "pxui <command> --help" for detailed options'))
   process.exit(0)
 }
 

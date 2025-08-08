@@ -14,7 +14,7 @@
     "lint": "turbo lint",
     "test": "turbo test",
     "cli": "npm run build --workspace=@pixell/cli && node packages/cli/dist/index.js",
-    "pixell": "npm run cli --",
+    "pxui": "npm run cli --",
     "env": "npm run cli -- env",
     "environments": "npm run cli -- env",
     "supabase:init": "npm run cli -- supabase init",
@@ -36,7 +36,7 @@
     "setup:fresh": "npm ci && npm run build && cd packages/cli && npm link",
     "setup:packages": "turbo build --filter=!web && cd packages/cli && npm link",
     "start": "npm run dev",
-    "pixell:start": "npm run cli -- start",
+    "pxui:start": "npm run cli -- start",
     "paf-core-agent:clone": "npm run cli -- paf-core-agent:clone",
     "paf-core-agent:update": "npm run cli -- paf-core-agent:update",
     "paf-core-agent:status": "npm run cli -- paf-core-agent:status",
@@ -62,6 +62,7 @@
   },
   "packageManager": "npm@10.8.2",
   "dependencies": {
+    "build": "^0.1.4",
     "mustache": "^4.2.0",
     "zod": "^3.25.75",
     "zustand": "^5.0.6"

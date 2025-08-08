@@ -1,9 +1,0 @@
-Hello World!
-
-This is a simple text file for testing the file management system.
-You can use this file to test mentions and attachments in the chat interface.
-
-Features to test:
-1. File mentions using @hello.txt
-2. File attachments when uploading
-3. File navigation in the file tree

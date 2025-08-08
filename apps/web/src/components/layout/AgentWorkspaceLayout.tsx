@@ -2,7 +2,7 @@
 import { useUIStore } from '@/stores/ui-store'
 import { NavigatorPane } from '@/components/navigator/navigator-pane'
 import { ChatWorkspace } from '@/components/chat/ChatWorkspace'
-import { ActivityPane } from '@/components/activity/activity-pane'
+import { ActivityPane, ActivityPaneRef } from '@/components/activity/activity-pane'
 import { useWebSocket } from '@/lib/websocket-manager'
 import { useWorkspaceStore } from '@/stores/workspace-store'
 import { designTokens } from '@/lib/design-tokens'
@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
 import { Button } from '@/components/ui/button'
 import { PanelLeft, PanelRight, Activity } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 export function AgentWorkspaceLayout() {
   const { 
@@ -23,6 +23,9 @@ export function AgentWorkspaceLayout() {
   const { connect } = useWebSocket()
   const { isConnected } = useWorkspaceStore()
   
+  // ActivityPane의 ref 생성
+  const activityPaneRef = useRef<ActivityPaneRef>(null as any)
+  
   // Connect to WebSocket on mount
   useEffect(() => {
     connect()
@@ -32,22 +35,11 @@ export function AgentWorkspaceLayout() {
     <div className="h-screen bg-background flex flex-col">
       <header className="h-14 border-b bg-card px-4 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-3">
-          <h1 className="text-lg font-semibold">Pixell Agent Framework</h1>
-          <div className="flex items-center gap-2 px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            Phase 1 Testing
-          </div>
-          
-          <div className={cn(
-            "flex items-center gap-2 px-2 py-1 rounded text-xs",
-            isConnected ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
-          )}>
-            <div className={cn(
-              "w-2 h-2 rounded-full",
-              isConnected ? "bg-green-500" : "bg-yellow-500"
-            )}></div>
-            {isConnected ? "Connected" : "Connecting..."}
-          </div>
+          <img 
+            src="/sungboon_logo.png" 
+            alt="Pixell Agent Framework" 
+            className="h-8 w-auto"
+          />
         </div>
         
         <div className="flex items-center gap-2">
@@ -99,7 +91,7 @@ export function AgentWorkspaceLayout() {
             minSize={30}
             className="min-w-0"
           >
-            <ChatWorkspace />
+            <ChatWorkspace activityPaneRef={activityPaneRef} />
           </Panel>
           
           {/* Right Panel - Activity Pane */}
@@ -113,7 +105,7 @@ export function AgentWorkspaceLayout() {
                 className="bg-muted/10 border-l"
               >
                 <div className="h-full overflow-y-auto">
-                  <ActivityPane />
+                  <ActivityPane ref={activityPaneRef} />
                 </div>
               </Panel>
             </>

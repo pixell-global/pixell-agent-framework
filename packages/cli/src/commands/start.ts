@@ -5,7 +5,7 @@ import { execSync, spawn, ChildProcess } from 'child_process'
 import execa from 'execa'
 import path from 'path'
 import fs from 'fs-extra'
-import { checkDockerInstallation, checkDockerRunning, installDocker } from './docker'
+import { checkDockerInstallation, checkDockerEngineRunning, installDocker } from './docker'
 
 interface EnvironmentConfig {
   name: string
@@ -200,7 +200,7 @@ async function validateDockerSetup(): Promise<void> {
       return
     }
     
-    const dockerRunning = await checkDockerRunning()
+    const dockerRunning = await checkDockerEngineRunning()
     
     if (!dockerRunning) {
       spinner.warn('⚠️  Docker installed but not running')

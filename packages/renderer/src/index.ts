@@ -6,6 +6,7 @@ export { MarkdownRenderer } from './components/MarkdownRenderer';
 export { CodeBlock } from './components/CodeBlock';
 export { ChartRenderer } from './components/ChartRenderer';
 export { TableRenderer } from './components/TableRenderer';
+export { EnhancedTableWrapper } from './components/EnhancedTableWrapper';
 export { BlockRenderer } from './components/BlockRenderer';
 export { MathSkeleton } from './components/MathSkeleton';
 

@@ -271,6 +271,33 @@ export class CoreAgentService {
       }
     }
   }
+
+  /**
+   * Acitivity 큐 가져오기
+   */
+  async getActivity(): Promise<{
+    message: string
+    payload: any
+  }> {
+    try {
+      const response = await fetch(`http://localhost:8000/api/activity-manager/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error(`Activity API error: ${response.status} ${response.statusText}`)
+      }
+
+      const result = await response.json()
+      return result
+    } catch (error) {
+      console.error('Activity Error:', error)
+      throw error
+    }
+  }
 }
 
 export const coreAgentService = new CoreAgentService() 

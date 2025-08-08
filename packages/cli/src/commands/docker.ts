@@ -19,10 +19,46 @@ export async function checkDockerInstallation(): Promise<boolean> {
   }
 }
 
-export async function checkDockerRunning(): Promise<boolean> {
+export async function checkDockerEngineRunning(): Promise<boolean> {
   try {
     await execa('docker', ['ps'])
     return true
+  } catch {
+    return false
+  }
+}
+
+export async function checkDockerContainersRunning(): Promise<boolean> {
+  try {
+    // Check if docker-compose.yml exists
+    const fs = require('fs')
+    const path = require('path')
+    
+    const composeFiles = ['docker-compose.yml', 'docker-compose.yaml']
+    let composeFileExists = false
+    
+    for (const file of composeFiles) {
+      if (fs.existsSync(path.join(process.cwd(), file))) {
+        composeFileExists = true
+        break
+      }
+    }
+    
+    if (composeFileExists) {
+      // Use docker-compose ps to check running containers
+      const result = await execa('docker-compose', ['ps', '-q'])
+      if (result.stdout.trim()) {
+        // Check if any containers are actually running (not just created)
+        const runningResult = await execa('docker-compose', ['ps', '--filter', 'status=running', '-q'])
+        return runningResult.stdout.trim().length > 0
+      }
+    } else {
+      // Fallback to docker ps for any running containers
+      const result = await execa('docker', ['ps', '-q'])
+      return result.stdout.trim().length > 0
+    }
+    
+    return false
   } catch {
     return false
   }
@@ -36,10 +72,18 @@ export async function installDocker(): Promise<void> {
     if (await checkDockerInstallation()) {
       spinner.info('✅ Docker is already installed')
       
-      // Check if Docker is running
-      if (await checkDockerRunning()) {
-        spinner.succeed('✅ Docker is installed and running')
-        return
+      // Check if Docker engine is running
+      if (await checkDockerEngineRunning()) {
+        // Check if project containers are running
+        if (await checkDockerContainersRunning()) {
+          spinner.succeed('✅ Docker is installed and containers are running')
+          return
+        } else {
+          spinner.warn('⚠️  Docker is running but project containers are not started')
+          console.log(chalk.yellow('\n💡 Start your project containers:'))
+          console.log(chalk.white('   docker-compose up -d'))
+          return
+        }
       } else {
         spinner.warn('⚠️  Docker is installed but not running')
         await promptStartDocker()
@@ -357,10 +401,20 @@ export async function dockerStart(): Promise<void> {
     return
   }
   
-  // Check if Docker is already running
-  const isRunning = await checkDockerRunning()
-  if (isRunning) {
-    console.log(chalk.green('✅ Docker is already running'))
+  // Check if Docker engine is running
+  const isEngineRunning = await checkDockerEngineRunning()
+  if (isEngineRunning) {
+    // Check if project containers are running
+    const areContainersRunning = await checkDockerContainersRunning()
+    if (areContainersRunning) {
+      console.log(chalk.green('✅ Docker is running and containers are active'))
+    } else {
+      console.log(chalk.green('✅ Docker engine is running'))
+      console.log(chalk.yellow('⚠️  Project containers are not running'))
+      console.log(chalk.yellow('\n💡 Start your project containers:'))
+      console.log(chalk.white('   docker-compose up -d'))
+    }
+    
     console.log(chalk.blue('\n📊 Quick Docker Info:'))
     
     try {
@@ -372,7 +426,11 @@ export async function dockerStart(): Promise<void> {
       console.log(chalk.gray(`   Containers: ${info.Containers || 0} (${info.ContainersRunning || 0} running)`))
     } catch {}
     
-    console.log(chalk.green('\n🎉 Docker is ready!'))
+    if (areContainersRunning) {
+      console.log(chalk.green('\n🎉 Docker and containers are ready!'))
+    } else {
+      console.log(chalk.yellow('\n⚠️  Start containers with: docker-compose up -d'))
+    }
     return
   }
   
@@ -386,10 +444,17 @@ export async function dockerStart(): Promise<void> {
     console.log(chalk.gray('\n⏳ Waiting for Docker to start...'))
     await new Promise(resolve => setTimeout(resolve, 3000))
     
-    const isNowRunning = await checkDockerRunning()
+    const isNowRunning = await checkDockerEngineRunning()
     if (isNowRunning) {
-      console.log(chalk.green('✅ Docker started successfully!'))
-      console.log(chalk.green('🎉 Docker is ready for development!'))
+      const areContainersRunning = await checkDockerContainersRunning()
+      if (areContainersRunning) {
+        console.log(chalk.green('✅ Docker started successfully and containers are running!'))
+        console.log(chalk.green('🎉 Docker is ready for development!'))
+      } else {
+        console.log(chalk.green('✅ Docker engine started successfully!'))
+        console.log(chalk.yellow('💡 Start your project containers:'))
+        console.log(chalk.white('   docker-compose up -d'))
+      }
     } else {
       console.log(chalk.yellow('⚠️  Docker may still be starting. Please wait a moment.'))
       console.log(chalk.gray('   Run "npm run pixell docker-status" to check again'))
@@ -429,10 +494,10 @@ export async function dockerStatus(): Promise<void> {
     console.log(chalk.gray(`   ${versionResult.stdout}`))
   } catch {}
   
-  // Check if Docker is running
-  const isRunning = await checkDockerRunning()
-  if (!isRunning) {
-    console.log(chalk.red('❌ Docker is not running'))
+  // Check if Docker engine is running
+  const isEngineRunning = await checkDockerEngineRunning()
+  if (!isEngineRunning) {
+    console.log(chalk.red('❌ Docker engine is not running'))
     
     const startPrompt = await inquirer.prompt([
       {
@@ -450,9 +515,9 @@ export async function dockerStatus(): Promise<void> {
       console.log(chalk.gray('\n⏳ Checking Docker status...'))
       await new Promise(resolve => setTimeout(resolve, 2000))
       
-      const isNowRunning = await checkDockerRunning()
+      const isNowRunning = await checkDockerEngineRunning()
       if (isNowRunning) {
-        console.log(chalk.green('✅ Docker is now running!'))
+        console.log(chalk.green('✅ Docker engine is now running!'))
       } else {
         console.log(chalk.yellow('⚠️  Docker may still be starting. Please wait a moment and try again.'))
         return
@@ -471,7 +536,17 @@ export async function dockerStatus(): Promise<void> {
     }
   }
   
-  console.log(chalk.green('✅ Docker is running'))
+  console.log(chalk.green('✅ Docker engine is running'))
+  
+  // Check if project containers are running
+  const areContainersRunning = await checkDockerContainersRunning()
+  if (areContainersRunning) {
+    console.log(chalk.green('✅ Project containers are running'))
+  } else {
+    console.log(chalk.yellow('⚠️  Project containers are not running'))
+    console.log(chalk.yellow('\n💡 Start your project containers:'))
+    console.log(chalk.white('   docker-compose up -d'))
+  }
   
   // Show Docker info
   try {
@@ -543,7 +618,7 @@ export async function ensureDockerForSupabase(): Promise<void> {
     }
   }
   
-  if (!(await checkDockerRunning())) {
+  if (!(await checkDockerEngineRunning())) {
     console.log(chalk.yellow('⚠️  Docker is installed but not running'))
     
     const answers = await inquirer.prompt([
@@ -562,12 +637,19 @@ export async function ensureDockerForSupabase(): Promise<void> {
       console.log(chalk.gray('Waiting for Docker to start...'))
       await new Promise(resolve => setTimeout(resolve, 5000))
       
-      if (!(await checkDockerRunning())) {
+      if (!(await checkDockerEngineRunning())) {
         throw new Error('Docker is starting but not ready yet. Please wait a moment and try again.')
       }
     } else {
       throw new Error('Docker is not running. Please start Docker and try again.')
     }
+  }
+  
+  // Check if project containers are running
+  if (!(await checkDockerContainersRunning())) {
+    console.log(chalk.yellow('⚠️  Docker is running but project containers are not started'))
+    console.log(chalk.yellow('\n💡 Start your project containers:'))
+    console.log(chalk.white('   docker-compose up -d'))
   }
   
   console.log(chalk.green('✅ Docker is ready!'))

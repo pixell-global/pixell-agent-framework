@@ -211,20 +211,36 @@ function getFileExtension(fileName: string): string {
 export function findFileInTree(searchTerm: string, fileTree: FileNode[]): FileNode | null {
   const searchLower = searchTerm.toLowerCase()
   
+  console.log('🔍 findFileInTree 시작:', { searchTerm, searchLower, fileTreeLength: fileTree.length })
+  
+  // 디버깅을 위해 전체 파일 트리 구조를 출력
+  console.log('🔍 전체 파일 트리:', JSON.stringify(fileTree.map(node => ({
+    name: node.name,
+    path: node.path,
+    type: node.type,
+    hasChildren: !!node.children,
+    childrenCount: node.children?.length || 0
+  })), null, 2))
+  
   function search(nodes: FileNode[]): FileNode | null {
     for (const node of nodes) {
+      console.log('🔍 검사 중인 노드:', { name: node.name, path: node.path, type: node.type })
+      
       // Check exact name match first
       if (node.name.toLowerCase() === searchLower) {
+        console.log('✅ 파일명 매칭 성공:', node.name)
         return node
       }
       
       // Check if path ends with search term
       if (node.path.toLowerCase().endsWith(searchLower)) {
+        console.log('✅ 경로 매칭 성공:', node.path)
         return node
       }
       
       // Search in children
       if (node.children) {
+        console.log('🔍 자식 노드 검색 중:', { nodePath: node.path, childrenCount: node.children.length })
         const found = search(node.children)
         if (found) return found
       }
@@ -232,7 +248,9 @@ export function findFileInTree(searchTerm: string, fileTree: FileNode[]): FileNo
     return null
   }
   
-  return search(fileTree)
+  const result = search(fileTree)
+  console.log('🔍 findFileInTree 결과:', result ? { name: result.name, path: result.path } : null)
+  return result
 }
 
 /**

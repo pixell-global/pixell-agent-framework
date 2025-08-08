@@ -69,7 +69,7 @@ export function EnhancedMessageBubble({
 
   return (
     <div className={`group w-full text-gray-800 ${isUser ? 'bg-gray-50' : 'bg-white'} ${className}`}>
-      <div className="flex gap-4 max-w-4xl mx-auto p-4">
+      <div className="flex gap-4 mx-auto p-4">
         {/* Avatar */}
         <div className={`flex-shrink-0 w-8 h-8 rounded-sm flex items-center justify-center ${
           isUser ? 'bg-green-500' : isAlert ? 'bg-red-500' : 'bg-blue-500'
@@ -138,7 +138,26 @@ export function EnhancedMessageBubble({
           )}
 
           {/* Message Content with Enhanced Renderer */}
-          <div className="max-w-none">
+          <div className="max-w-none overflow-x-auto message-content-scroll" style={{
+            scrollbarWidth: 'thin',
+            scrollbarColor: '#CBD5E1 #F1F5F9'
+          }}>
+            <style>{`
+              .message-content-scroll::-webkit-scrollbar {
+                height: 6px;
+              }
+              .message-content-scroll::-webkit-scrollbar-track {
+                background: #f1f5f9;
+                border-radius: 3px;
+              }
+              .message-content-scroll::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 3px;
+              }
+              .message-content-scroll::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+              }
+            `}</style>
             <HybridStreamingRenderer
               content={message.content}
               isStreaming={isStreaming}

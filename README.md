@@ -104,7 +104,7 @@ After setup completes, you have flexible options for starting services:
 
 #### Option A: Start Frontend & Backend Only (Recommended for UI Development)
 ```bash
-pixell start
+pxui start
 ```
 
 This starts:
@@ -114,7 +114,7 @@ This starts:
 
 #### Option B: Start PAF Core Agent Only (For AI/Backend Development)
 ```bash
-pixell start core-agent
+pxui start core-agent
 ```
 
 This starts:
@@ -125,10 +125,10 @@ This starts:
 #### Option C: Start Everything Together
 ```bash
 # Terminal 1: Start frontend/backend
-pixell start
+pxui start
 
 # Terminal 2: Start PAF Core Agent
-pixell start core-agent
+pxui start core-agent
 ```
 
 **Alternative**: For manual control:
@@ -147,7 +147,7 @@ The `npm run setup:complete` command automatically prompts for your OpenAI API k
 You can configure AI providers anytime using the dedicated command:
 
 ```bash
-pixell config ai
+pxui config ai
 ```
 
 This interactive setup allows you to:

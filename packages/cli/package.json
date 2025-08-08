@@ -4,7 +4,7 @@
   "description": "CLI tools for Pixell Agent Framework development",
   "main": "dist/index.js",
   "bin": {
-    "pixell": "./bin/pixell.js",
+    "pxui": "./bin/pxui.js",
     "create-pixell-agent": "./bin/create-pixell-agent.js"
   },
   "scripts": {

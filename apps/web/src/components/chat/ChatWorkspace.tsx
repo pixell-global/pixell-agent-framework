@@ -1,18 +1,20 @@
 'use client'
 
 import React, { useEffect, useRef } from 'react'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { ChatMessage, FileReference, FileAttachment, FileMention } from '@/types'
 import { EnhancedMessageBubble } from './EnhancedMessageBubble'
 import { ChatInput } from './ChatInput'
 import { useChatStore, selectMessages, selectIsLoading, selectStreamingMessage } from '@/stores/chat-store'
 import { coreAgentService } from '@/services/coreAgentService'
+import { ActivityPaneRef } from '@/components/activity/activity-pane'
+import { RefObject } from 'react'
 
 interface ChatWorkspaceProps {
   className?: string
+  activityPaneRef?: RefObject<ActivityPaneRef>
 }
 
-export function ChatWorkspace({ className = '' }: ChatWorkspaceProps) {
+export function ChatWorkspace({ className = '', activityPaneRef }: ChatWorkspaceProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   
   // Zustand store selectors
@@ -35,15 +37,29 @@ export function ChatWorkspace({ className = '' }: ChatWorkspaceProps) {
   const setLoading = useChatStore(state => state.setLoading)
   const setAgentHealth = useChatStore(state => state.setAgentHealth)
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to bottom when new messages arrive or during streaming
   useEffect(() => {
     if (settings.autoScrollEnabled && scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]')
-      if (scrollContainer) {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight
-      }
+      // Use requestAnimationFrame to ensure the DOM has updated
+      requestAnimationFrame(() => {
+        if (scrollAreaRef.current) {
+          scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight
+        }
+      })
     }
-  }, [messages, settings.autoScrollEnabled])
+  }, [messages, streamingMessage, settings.autoScrollEnabled])
+
+  // Additional effect to handle streaming content updates
+  useEffect(() => {
+    if (streamingMessage && settings.autoScrollEnabled && scrollAreaRef.current) {
+      // Smooth scroll during streaming
+      requestAnimationFrame(() => {
+        if (scrollAreaRef.current) {
+          scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight
+        }
+      })
+    }
+  }, [streamingMessage, settings.autoScrollEnabled])
 
   // Check AI health on mount and clear temp folder
   useEffect(() => {
@@ -159,6 +175,24 @@ export function ChatWorkspace({ className = '' }: ChatWorkspaceProps) {
           setLoading(false)
         }
       )
+
+	  // Get Data for Generate UI
+	  const data = await coreAgentService.getActivity()
+	  console.log('🔍 getActivity 반환 데이터:', data)
+	  
+	  // API가 배열을 직접 반환하므로 마지막 항목을 가져옴
+	  let itemToPass = null
+	  
+	  if (Array.isArray(data) && data.length > 0) {
+	    itemToPass = data[data.length - 1]
+	  }
+	  
+	  console.log('🔍 전달할 아이템:', itemToPass)
+	  
+	  if (itemToPass && activityPaneRef?.current) {
+	    activityPaneRef.current.triggerUIGeneration(itemToPass)
+	  }
+
     } catch (error) {
       console.error('Failed to send message:', error)
       setStreamingMessage(null)
@@ -215,12 +249,29 @@ export function ChatWorkspace({ className = '' }: ChatWorkspaceProps) {
 
   return (
     <div className={`chat-workspace flex flex-col h-full bg-white ${className}`}>
+      <style>{`
+        .chat-workspace-scroll::-webkit-scrollbar {
+          height: 8px;
+          width: 8px;
+        }
+        .chat-workspace-scroll::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 4px;
+        }
+        .chat-workspace-scroll::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 4px;
+        }
+        .chat-workspace-scroll::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+        }
+      `}</style>
       {/* Messages Area - Following Design Guide */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 px-4 py-6">
+      <div ref={scrollAreaRef} className="flex-1 overflow-y-auto overflow-x-auto px-4 py-6 chat-workspace-scroll">
         {messages.length === 0 ? (
           renderWelcomeMessage()
         ) : (
-          <div className="space-y-4 max-w-3xl mx-auto">
+          <div className="space-y-4 mx-auto max-w-4xl">
             {messages.map((message) => (
               <EnhancedMessageBubble
                 key={message.id}
@@ -230,7 +281,7 @@ export function ChatWorkspace({ className = '' }: ChatWorkspaceProps) {
             ))}
           </div>
         )}
-      </ScrollArea>
+      </div>
 
       {/* AI Status Indicator - Following Design Guide */}
       <div className="px-4 py-2 border-t border-gray-200 bg-gray-50">

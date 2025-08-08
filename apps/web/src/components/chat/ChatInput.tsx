@@ -39,10 +39,10 @@ export function ChatInput({
     startIndex: -1
   })
   
-  const selectedFiles = useChatStore(state => state.selectedFiles)
+  const selectedFiles = useWorkspaceStore(state => state.selectedFiles)
   const pendingAttachments = useChatStore(state => state.pendingAttachments)
-  const removeFileReference = useChatStore(state => state.removeFileReference)
-  const clearFileReferences = useChatStore(state => state.clearFileReferences)
+  const removeFileReference = useWorkspaceStore(state => state.removeFileReference)
+  const clearFileReferences = useWorkspaceStore(state => state.clearFileReferences)
   const addAttachment = useChatStore(state => state.addAttachment)
   const removeAttachment = useChatStore(state => state.removeAttachment)
   const updateAttachment = useChatStore(state => state.updateAttachment)

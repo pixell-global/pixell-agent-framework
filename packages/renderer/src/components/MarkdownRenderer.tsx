@@ -9,6 +9,7 @@ import { sanitizeContent } from '../security/Sanitizer';
 import { MarkdownRendererProps, SecurityLevel } from '../types';
 import { CodeBlock } from './CodeBlock';
 import { BlockRenderer } from './BlockRenderer';
+import { EnhancedTableWrapper } from './EnhancedTableWrapper';
 
 export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
   content,
@@ -160,13 +161,13 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       );
     },
     
-    // Enhanced table styling
+    // Enhanced table styling with scroll and CSV download
     table: ({ children, ...props }: any) => (
-      <div className="overflow-x-auto my-4">
+      <EnhancedTableWrapper className="my-4">
         <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg" {...props}>
           {children}
         </table>
-      </div>
+      </EnhancedTableWrapper>
     ),
     
     thead: ({ children, ...props }: any) => (

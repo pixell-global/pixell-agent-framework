@@ -26,6 +26,8 @@ export async function processMentions(
   const errors: string[] = []
   const warnings: string[] = []
   
+  console.log('🔍 processMentions 호출됨:', { messageText, fileTreeCount: fileTree.length })
+  
   // Find all @ mentions in the text
   const mentionRegex = /@([^\s@]+)/g
   let match
@@ -38,6 +40,8 @@ export async function processMentions(
       endIndex: match.index + match[0].length
     })
   }
+  
+  console.log('🔍 발견된 멘션들:', foundMentions)
   
   // Process each mention
   for (const mentionMatch of foundMentions) {
@@ -97,10 +101,15 @@ async function processSingleMention(
   endIndex: number,
   fileTree: FileNode[]
 ): Promise<FileMention> {
+  console.log('🔍 processSingleMention 호출됨:', { mentionText, fileTreeCount: fileTree.length })
+  
   // Find the file in the tree
   const fileNode = findFileInTree(mentionText, fileTree)
   
+  console.log('🔍 findFileInTree 결과:', { mentionText, fileNode: fileNode ? { name: fileNode.name, path: fileNode.path } : null })
+  
   if (!fileNode) {
+    console.log('❌ 파일을 찾을 수 없음:', mentionText)
     return {
       id: crypto.randomUUID(),
       name: mentionText,
